@@ -1,0 +1,171 @@
+/* ===== ReactベースのAppスタイル ===== */
+.App {
+  text-align: center;
+}
+
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
+}
+
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ===== さきさんの弓道スコアUI用スタイル ===== */
+
+/* 全体のコンテナ */
+.stand-container {
+  width: 90%;
+  max-width: 600px;
+  margin: 20px auto;
+  background: #fffdfa;
+  border: 2px solid #b39259;
+  border-radius: 10px;
+  padding: 16px;
+  box-shadow: 0 4px 8px rgba(179, 146, 89, 0.3);
+  font-family: "ヒラギノ角ゴ Pro", "Hiragino Kaku Gothic Pro", "メイリオ", Meiryo, sans-serif;
+  color: #333;
+}
+
+/* スコア入力部分 */
+.score-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.score-row label {
+  font-weight: 600;
+  flex: 1;
+  align-self: center;
+}
+
+.score-row input[type="number"] {
+  width: 60px;
+  padding: 6px 8px;
+  border: 1px solid #b39259;
+  border-radius: 6px;
+  font-size: 1rem;
+  text-align: center;
+  background-color: #fefcf8;
+  transition: border-color 0.3s ease;
+}
+
+.score-row input[type="number"]:focus {
+  border-color: #6a4e00;
+  outline: none;
+}
+
+/* スタンドの高さ表示 */
+.stand-height {
+  margin: 12px 0;
+  font-weight: 700;
+  text-align: center;
+  color: #7b5e00;
+}
+
+/* カレンダーとボタン群 */
+.calendar-container {
+  margin-top: 20px;
+}
+
+.button-group {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 16px;
+}
+
+.button-group button {
+  background-color: #b39259;
+  border: none;
+  color: #fffdfa;
+  padding: 10px 18px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 1rem;
+  box-shadow: 0 3px 6px rgba(179, 146, 89, 0.4);
+  transition: background-color 0.3s ease;
+}
+
+.button-group button:hover {
+  background-color: #7b5e00;
+}
+
+/* スコアリスト */
+.score-list {
+  margin-top: 24px;
+  border-top: 1px solid #b39259;
+  padding-top: 12px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.score-list-item {
+  padding: 6px 0;
+  border-bottom: 1px solid #f0e6cc;
+  font-size: 1rem;
+  color: #4d3f00;
+}
+
+/* ===== レスポンシブ対応 ===== */
+@media screen and (max-width: 480px) {
+  .stand-container {
+    width: 95%;
+    padding: 12px;
+  }
+
+  .score-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .score-row label {
+    margin-bottom: 6px;
+  }
+
+  .score-row input[type="number"] {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .button-group {
+    flex-direction: column;
+  }
+
+  .button-group button {
+    margin-bottom: 10px;
+    width: 100%;
+  }
+
+  .score-list {
+    max-height: 150px;
+  }
+}
