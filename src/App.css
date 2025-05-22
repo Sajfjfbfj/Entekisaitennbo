@@ -169,3 +169,20 @@
     max-height: 150px;
   }
 }
+.zone-10 {
+  fill: yellow;
+}
+.zone-9 {
+  fill: red;
+}
+.zone-7 {
+  fill: blue;
+}
+.zone-5 {
+  fill: black;
+}
+.zone-3 {
+  fill: white;
+  stroke: black;
+  stroke-width: 2;
+}
