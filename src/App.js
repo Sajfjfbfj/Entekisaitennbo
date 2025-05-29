@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import "./App.css"; // 必ずCSSを読み込んでね
+import "./App.css"; // CSSはそのまま使ってください
 
 const SHOT_POINTS = [
   { name: "3点", radius: 50, score: 3 },
@@ -8,7 +8,6 @@ const SHOT_POINTS = [
   { name: "9点", radius: 20, score: 9 },
   { name: "10点", radius: 10, score: 10 },
 ];
-
 
 function calculateScore(x, y) {
   const dist = Math.sqrt(x * x + y * y);
@@ -31,6 +30,7 @@ function Target({ shots, onShot }) {
         backgroundColor: "#fafafa",
         borderRadius: "50%",
         cursor: onShot ? "pointer" : "default",
+        userSelect: "none",
       }}
       onClick={(e) => {
         if (!onShot) return;
@@ -44,21 +44,33 @@ function Target({ shots, onShot }) {
         const posY = y * scale;
         onShot({ x: posX, y: posY, score: calculateScore(posX, posY) });
       }}
+      aria-label="射的ターゲット"
+      role="img"
     >
-     {SHOT_POINTS.map((p, i) => (
-  <circle
-    key={i}
-    className={`zone-${p.score}`}
-    cx="0"
-    cy="0"
-    r={p.radius}
-    stroke="#999"
-    strokeWidth="0.5"
-  />
-))}
+      {SHOT_POINTS.map((p, i) => (
+        <circle
+          key={i}
+          className={`zone-${p.score}`}
+          cx="0"
+          cy="0"
+          r={p.radius}
+          stroke="#999"
+          strokeWidth="0.5"
+          fill="none"
+        />
+      ))}
 
       {shots.map((shot, i) => (
-        <circle key={i} cx={shot.x} cy={shot.y} r={1.5} fill="red" />
+        <circle
+          key={i}
+          cx={shot.x}
+          cy={shot.y}
+          r={1.5}
+          fill="pink"
+          stroke="#e91e63"
+          strokeWidth={0.5}
+          aria-label={`矢 ${i + 1} の着弾点、得点 ${shot.score}`}
+        />
       ))}
     </svg>
   );
@@ -83,7 +95,7 @@ function Stand({ standData, setStandData, index, tools, editable }) {
     if (selected.includes(toolIndex)) {
       selected = selected.filter((i) => i !== toolIndex);
     } else {
-      if (selected.length >= 4) return; // 最大4つまで
+      if (selected.length >= 4) return;
       selected = [...selected, toolIndex];
     }
     setStandData({ ...standData, selectedTools: selected });
@@ -97,7 +109,9 @@ function Stand({ standData, setStandData, index, tools, editable }) {
         padding: 12,
         borderRadius: 8,
         backgroundColor: editable ? "white" : "#f9f9f9",
+        userSelect: "none",
       }}
+      aria-label={`立ち ${index + 1} の記録`}
     >
       <h3>
         立ち {index + 1} {standData.shots.length > 0 && `(得点: ${totalScore})`}
@@ -105,6 +119,8 @@ function Stand({ standData, setStandData, index, tools, editable }) {
           <button
             style={{ marginLeft: 12, cursor: "pointer" }}
             onClick={() => setShowDetails(!showDetails)}
+            aria-expanded={showDetails}
+            aria-controls={`stand-details-${index}`}
           >
             {showDetails ? "詳細なし" : "詳細あり"}
           </button>
@@ -115,7 +131,7 @@ function Stand({ standData, setStandData, index, tools, editable }) {
         <strong>矢の本数:</strong> {standData.shots.length}
       </div>
       {showDetails && (
-        <ul style={{ marginTop: 8 }}>
+        <ul id={`stand-details-${index}`} style={{ marginTop: 8 }}>
           {standData.shots.map((shot, i) => (
             <li key={i}>
               矢{i + 1}: 座標({shot.x.toFixed(1)}, {shot.y.toFixed(1)}), 得点:{" "}
@@ -143,7 +159,9 @@ function Stand({ standData, setStandData, index, tools, editable }) {
                   border: selected ? "2px solid #007bff" : "1px solid #ccc",
                   backgroundColor: selected ? "#cce5ff" : "white",
                   cursor: editable ? "pointer" : "default",
+                  userSelect: "none",
                 }}
+                aria-pressed={selected}
               >
                 {tool.name}（{tool.type}）
               </button>
@@ -174,7 +192,9 @@ function ToolManagement({ tools, setTools }) {
         border: "1px solid #666",
         padding: 16,
         borderRadius: 8,
+        userSelect: "none",
       }}
+      aria-label="道具管理"
     >
       <h2>道具管理</h2>
       <div style={{ marginBottom: 8 }}>
@@ -184,11 +204,13 @@ function ToolManagement({ tools, setTools }) {
           value={newTool.name}
           onChange={(e) => setNewTool({ ...newTool, name: e.target.value })}
           style={{ marginRight: 8 }}
+          aria-label="道具名"
         />
         <select
           value={newTool.type}
           onChange={(e) => setNewTool({ ...newTool, type: e.target.value })}
           style={{ marginRight: 8 }}
+          aria-label="道具種類"
         >
           <option value="">種類を選択</option>
           <option value="弓">弓</option>
@@ -215,13 +237,11 @@ function ToolManagement({ tools, setTools }) {
   );
 }
 
-function Calendar({ year, month, onSelectDate, selectedDate, records })
- {
+function Calendar({ year, month, onSelectDate, selectedDate, records }) {
   const firstDay = new Date(year, month, 1);
   const lastDay = new Date(year, month + 1, 0);
   const firstWeekday = firstDay.getDay();
   const daysInMonth = lastDay.getDate();
-
 
   const weeks = [];
   let dayCount = 1 - firstWeekday;
@@ -252,13 +272,13 @@ function Calendar({ year, month, onSelectDate, selectedDate, records })
         maxWidth: 350,
         userSelect: "none",
       }}
+      aria-label={`${year}年${month + 1}月のカレンダー`}
     >
       <table
         style={{
           width: "100%",
           borderCollapse: "collapse",
           textAlign: "center",
-
         }}
       >
         <thead>
@@ -274,10 +294,16 @@ function Calendar({ year, month, onSelectDate, selectedDate, records })
           {weeks.map((week, wi) => (
             <tr key={wi}>
               {week.map((day, di) => {
-                if (!day) return <td key={di} style={{ padding: 8 }}></td>;
+                if (!day)
+                  return (
+                    <td
+                      key={di}
+                      style={{ padding: 8, backgroundColor: "#f8f9fa" }}
+                      aria-disabled="true"
+                    ></td>
+                  );
 
                 const dateStr = formatDate(year, month, day);
-
                 const isSelected = selectedDate === dateStr;
                 const hasRecords = records && records[dateStr]?.length > 0;
 
@@ -295,10 +321,17 @@ function Calendar({ year, month, onSelectDate, selectedDate, records })
                         : "transparent",
                       color: isSelected ? "white" : "black",
                       borderRadius: 4,
-
                       userSelect: "none",
+                      transition: "background-color 0.3s ease",
                     }}
-
+                    aria-current={isSelected ? "date" : undefined}
+                    tabIndex={0}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        onSelectDate(dateStr);
+                      }
+                    }}
+                    role="button"
                   >
                     {day}
                   </td>
@@ -321,10 +354,14 @@ export default function App() {
     }
   });
 
-
   const [records, setRecords] = useState(() => {
     try {
-      return JSON.parse(localStorage.getItem("records")) || { practice: {}, competition: {} };
+      return (
+        JSON.parse(localStorage.getItem("records")) || {
+          practice: {},
+          competition: {},
+        }
+      );
     } catch {
       return { practice: {}, competition: {} };
     }
@@ -340,48 +377,47 @@ export default function App() {
     ).padStart(2, "0")}`;
   });
 
-  // 選択日付の立ち一覧を取得
-  const standsForSelected = records[mode][selectedDate] || [];
+  // 選択日の立ちデータ（配列）
+  const stands = records[mode][selectedDate] || [];
 
-  // 立ちを更新
-  const updateStand = (index, newData) => {
-    const updatedStands = [...standsForSelected];
-    updatedStands[index] = newData;
-    setRecords({
-      ...records,
-      [mode]: {
-        ...records[mode],
-        [selectedDate]: updatedStands,
-      },
+  // 立ちデータ更新用
+  const updateStandData = (index, newStandData) => {
+    const newStands = [...stands];
+    newStands[index] = newStandData;
+    setRecords((prev) => {
+      const newRecords = { ...prev };
+      newRecords[mode] = { ...newRecords[mode], [selectedDate]: newStands };
+      localStorage.setItem("records", JSON.stringify(newRecords));
+      return newRecords;
     });
   };
 
-  // 立ちを追加
+  // 立ち追加
   const addStand = () => {
-    const newStand = {
-      shots: [],
-      selectedTools: [],
-    };
-    const updatedStands = [...standsForSelected, newStand];
-    setRecords({
-      ...records,
-      [mode]: {
-        ...records[mode],
-        [selectedDate]: updatedStands,
-      },
+    const newStand = { shots: [], selectedTools: [] };
+    const newStands = [...stands, newStand];
+    setRecords((prev) => {
+      const newRecords = { ...prev };
+      newRecords[mode] = { ...newRecords[mode], [selectedDate]: newStands };
+      localStorage.setItem("records", JSON.stringify(newRecords));
+      return newRecords;
     });
   };
 
-  // 道具と記録はローカルストレージに保存
+  // 道具をlocalStorageに保存
   useEffect(() => {
     localStorage.setItem("tools", JSON.stringify(tools));
   }, [tools]);
 
-  useEffect(() => {
-    localStorage.setItem("records", JSON.stringify(records));
-  }, [records]);
+  // カレンダーの日付で得点合計表示も入れました（ここから）
 
-  // 年月変更のための関数
+  const formatDate = (y, m, d) => {
+    const mm = m + 1 < 10 ? "0" + (m + 1) : m + 1;
+    const dd = d < 10 ? "0" + d : d;
+    return `${y}-${mm}-${dd}`;
+  };
+
+  // 月の切り替えボタン（左・右）
   const prevMonth = () => {
     if (currentMonth === 0) {
       setCurrentYear(currentYear - 1);
@@ -390,7 +426,6 @@ export default function App() {
       setCurrentMonth(currentMonth - 1);
     }
   };
-
   const nextMonth = () => {
     if (currentMonth === 11) {
       setCurrentYear(currentYear + 1);
@@ -400,101 +435,226 @@ export default function App() {
     }
   };
 
-  return (
-    <div
-      style={{
-        maxWidth: 700,
-        margin: "auto",
-        padding: 24,
-        fontFamily: "'Helvetica Neue', Helvetica, Arial, sans-serif",
-      }}
-    >
-      <h1 style={{ textAlign: "center" }}>遠的スコア記録アプリ</h1>
+  // カレンダーのセルに合計点を表示する部分を含めて再定義
+  function CalendarWithScore({
+    year,
+    month,
+    onSelectDate,
+    selectedDate,
+    records,
+  }) {
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    const firstWeekday = firstDay.getDay();
+    const daysInMonth = lastDay.getDate();
 
-      <div style={{ textAlign: "center", marginBottom: 16 }}>
-        <button
-          onClick={() => setMode("practice")}
-          disabled={mode === "practice"}
-          style={{ marginRight: 12, cursor: mode === "practice" ? "default" : "pointer" }}
-        >
-          練習モード
-        </button>
-        <button
-          onClick={() => setMode("competition")}
-          disabled={mode === "competition"}
-          style={{ cursor: mode === "competition" ? "default" : "pointer" }}
-        >
-          大会モード
-        </button>
-      </div>
+    const weeks = [];
+    let dayCount = 1 - firstWeekday;
+    for (let w = 0; w < 6; w++) {
+      const days = [];
+      for (let d = 0; d < 7; d++, dayCount++) {
+        if (dayCount < 1 || dayCount > daysInMonth) {
+          days.push(null);
+        } else {
+          days.push(dayCount);
+        }
+      }
+      weeks.push(days);
+    }
 
+    const formatDate = (y, m, d) => {
+      const mm = m + 1 < 10 ? "0" + (m + 1) : m + 1;
+      const dd = d < 10 ? "0" + d : d;
+      return `${y}-${mm}-${dd}`;
+    };
+
+    return (
       <div
         style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          marginBottom: 12,
-          gap: 12,
+          border: "1px solid #ccc",
+          borderRadius: 8,
+          padding: 12,
+          maxWidth: 350,
           userSelect: "none",
         }}
+        aria-label={`${year}年${month + 1}月のカレンダー`}
       >
-        <button onClick={prevMonth} style={{ cursor: "pointer" }}>
-          &lt; 前月
-        </button>
-        <div style={{ fontWeight: "bold" }}>
-          {currentYear}年 {currentMonth + 1}月
+        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
+          <button onClick={prevMonth} aria-label="前の月へ" style={{ cursor: "pointer" }}>
+            &lt;
+          </button>
+          <strong>
+            {year}年 {month + 1}月
+          </strong>
+          <button onClick={nextMonth} aria-label="次の月へ" style={{ cursor: "pointer" }}>
+            &gt;
+          </button>
         </div>
-        <button onClick={nextMonth} style={{ cursor: "pointer" }}>
-          次月 &gt;
-        </button>
+        <table
+          style={{
+            width: "100%",
+            borderCollapse: "collapse",
+            textAlign: "center",
+          }}
+        >
+          <thead>
+            <tr>
+              {["日", "月", "火", "水", "木", "金", "土"].map((d) => (
+                <th key={d} style={{ padding: 6, borderBottom: "1px solid #ccc" }}>
+                  {d}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {weeks.map((week, wi) => (
+              <tr key={wi}>
+                {week.map((day, di) => {
+                  if (!day)
+                    return (
+                      <td
+                        key={di}
+                        style={{ padding: 8, backgroundColor: "#f8f9fa" }}
+                        aria-disabled="true"
+                      ></td>
+                    );
+
+                  const dateStr = formatDate(year, month, day);
+                  const isSelected = selectedDate === dateStr;
+                  const hasRecords = records && records[dateStr]?.length > 0;
+
+                  const totalScoreForDay = hasRecords
+                    ? records[dateStr].reduce(
+                        (acc, stand) =>
+                          acc +
+                          stand.shots.reduce((sum, shot) => sum + shot.score, 0),
+                        0
+                      )
+                    : 0;
+
+                  return (
+                    <td
+                      key={di}
+                      onClick={() => onSelectDate(dateStr)}
+                      style={{
+                        padding: 8,
+                        cursor: "pointer",
+                        backgroundColor: isSelected
+                          ? "#007bff"
+                          : hasRecords
+                          ? "#d1e7dd"
+                          : "transparent",
+                        color: isSelected ? "white" : "black",
+                        borderRadius: 4,
+                        userSelect: "none",
+                        transition: "background-color 0.3s ease",
+                      }}
+                      aria-current={isSelected ? "date" : undefined}
+                      tabIndex={0}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          onSelectDate(dateStr);
+                        }
+                      }}
+                      role="button"
+                      aria-label={`${day}日${hasRecords ? ` 合計得点${totalScoreForDay}` : ""}`}
+                    >
+                      {day}
+                      {hasRecords && (
+                        <div
+                          style={{ fontSize: 10, color: "#155724", marginTop: 2 }}
+                          aria-hidden="true"
+                        >
+                          合計得点: {totalScoreForDay}
+                        </div>
+                      )}
+                    </td>
+                  );
+                })}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    );
+  }
+
+  // 最終的に表示される立ちのコンポーネントリスト
+  const standComponents = stands.map((stand, i) => (
+    <Stand
+      key={i}
+      index={i}
+      standData={stand}
+      setStandData={(newData) => updateStandData(i, newData)}
+      tools={tools}
+      editable={true}
+    />
+  ));
+
+  return (
+    <main
+      style={{
+        fontFamily: "Helvetica, Arial, sans-serif",
+        maxWidth: 900,
+        margin: "0 auto",
+        padding: 16,
+        userSelect: "none",
+      }}
+    >
+      <h1>弓道スコア記録アプリ</h1>
+      <div style={{ marginBottom: 16 }}>
+        <label htmlFor="mode-select">
+          モード:
+          <select
+            id="mode-select"
+            value={mode}
+            onChange={(e) => setMode(e.target.value)}
+            style={{ marginLeft: 8 }}
+            aria-label="モード選択"
+          >
+            <option value="practice">練習</option>
+            <option value="competition">試合</option>
+          </select>
+        </label>
       </div>
 
-      <Calendar
+      <CalendarWithScore
         year={currentYear}
         month={currentMonth}
-        selectedDate={selectedDate}
         onSelectDate={setSelectedDate}
-
+        selectedDate={selectedDate}
         records={records[mode]}
       />
 
-      <div style={{ marginTop: 24 }}>
+      <section
+        aria-live="polite"
+        style={{ marginTop: 24 }}
+        aria-label={`${selectedDate}の${mode === "practice" ? "練習" : "試合"}記録`}
+      >
         <h2>
-          {selectedDate} の記録（{mode === "practice" ? "練習" : "大会"}モード）
+          {selectedDate} の {mode === "practice" ? "練習" : "試合"}記録
         </h2>
-        {standsForSelected.length === 0 && <p>この日に記録はありません。</p>}
-
-        {standsForSelected.map((stand, i) => (
-          <Stand
-            key={i}
-            index={i}
-            standData={stand}
-            setStandData={(newData) => updateStand(i, newData)}
-            tools={tools}
-            editable={true}
-          />
-        ))}
-
+        {standComponents.length === 0 && <p>まだ立ちの記録はありません</p>}
+        {standComponents}
         <button
           onClick={addStand}
           style={{
+            marginTop: 8,
+            padding: "8px 12px",
+            borderRadius: 4,
             cursor: "pointer",
-            padding: "8px 16px",
-            marginTop: 12,
-            borderRadius: 6,
-            border: "1px solid #007bff",
             backgroundColor: "#007bff",
             color: "white",
-            fontWeight: "bold",
+            border: "none",
           }}
+          aria-label="新しい立ちを追加"
         >
-          立ちを追加
+          新しい立ちを追加
         </button>
-      </div>
-
+      </section>
 
       <ToolManagement tools={tools} setTools={setTools} />
-    </div>
+    </main>
   );
 }
 
